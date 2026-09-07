@@ -105,6 +105,10 @@
 .bolivar-video-carousel .carousel-next,.gp-hasvideo.featured .carousel-next{right:16px;}
 .bolivar-video-carousel .carousel-dots{bottom:12px;}
 .bolivar-video-carousel .featured-video-el{object-fit:contain;}
+#soundUnlockBtn{position:fixed;bottom:22px;right:22px;z-index:800;background:var(--burgundy);color:var(--pink-light);font-size:13px;font-weight:600;letter-spacing:.02em;padding:12px 20px;border-radius:100px;box-shadow:0 6px 18px rgba(0,0,0,0.18);opacity:1;transform:translateY(0);transition:opacity .4s var(--ease), transform .4s var(--ease);}
+#soundUnlockBtn:hover{background:var(--pink);color:var(--burgundy-2);}
+#soundUnlockBtn.hidden{opacity:0;transform:translateY(12px);pointer-events:none;}
+@media (max-width:600px){#soundUnlockBtn{bottom:16px;right:16px;padding:10px 16px;font-size:12px;}}
 @media (max-width:860px){.about-design-card{min-height:420px;}.about-card-mark{font-size:100px;}.about-card-title{font-size:34px;}}
 @media (max-width:760px){.about-design-card{min-height:360px;padding:24px;}.about-card-mark{top:28px;left:24px;font-size:86px;}.about-card-title{left:24px;bottom:84px;font-size:30px}.about-card-line{left:24px;right:24px;bottom:64px}.about-card-label{left:24px;bottom:40px;font-size:8px}.about-card-year{right:24px;bottom:40px;font-size:8px;}}
 </style>
@@ -137,6 +141,8 @@
 </style>
 </head>
 <body>
+
+  <button id="soundUnlockBtn" type="button" aria-label="Activar sonido de los videos">🔊 Activar sonido</button>
 
 <div class="cursor-dot" id="cursorDot"></div>
 
@@ -648,6 +654,37 @@ document.querySelectorAll('.sr').forEach(el => {
    PAUSA AL SALIR
 ========================================== */
 
+let audioUnlocked = false;
+
+const soundUnlockBtn = document.getElementById('soundUnlockBtn');
+
+if (soundUnlockBtn) {
+
+  soundUnlockBtn.addEventListener('click', () => {
+
+    audioUnlocked = true;
+
+    soundUnlockBtn.classList.add('hidden');
+
+    /*
+      Activamos el sonido de inmediato
+      en cualquier video que ya esté
+      reproduciéndose en pantalla.
+    */
+
+    document.querySelectorAll(
+      '.gp-hasvideo.playing video, .featured-video.playing video'
+    ).forEach(v => {
+
+      v.muted = false;
+
+    });
+
+  });
+
+}
+
+
 document.querySelectorAll(
   '.gp-hasvideo, .featured-video'
 ).forEach(card => {
@@ -665,16 +702,33 @@ document.querySelectorAll(
      REPRODUCIR VIDEO
   ----------------------------- */
 
+  let userUnmuted = false;
+
+
   function playVideo(withSound) {
 
     /*
       El navegador solo permite autoplay
-      cuando el video está silenciado.
-      Si el usuario dio clic (withSound),
-      sí activamos el audio.
+      con sonido si el usuario ya dio
+      algún clic en la página (audioUnlocked),
+      o si el clic fue directo sobre este
+      video (withSound).
+      Si el usuario ya había activado el
+      sonido antes, no lo volvemos a
+      silenciar automáticamente (por
+      ejemplo al seguir haciendo scroll).
     */
 
-    video.muted = withSound ? false : true;
+    if (withSound || audioUnlocked) {
+
+      video.muted = false;
+      userUnmuted = true;
+
+    } else if (!userUnmuted) {
+
+      video.muted = true;
+
+    }
 
     video.play()
       .then(() => {
@@ -690,8 +744,9 @@ document.querySelectorAll(
           usuario), reintentamos silenciado.
         */
 
-        if (withSound) {
+        if (withSound || audioUnlocked) {
           video.muted = true;
+          userUnmuted = false;
           video.play().then(() => card.classList.add('playing')).catch(() => {});
         }
 
@@ -735,7 +790,7 @@ document.querySelectorAll(
           entry.intersectionRatio >= 0.35
         ) {
 
-          playVideo(false);
+          playVideo(audioUnlocked);
 
         } else {
 
@@ -779,6 +834,7 @@ document.querySelectorAll(
       } else if (video.muted) {
 
         video.muted = false;
+        userUnmuted = true;
 
       } else {
 
@@ -805,6 +861,7 @@ document.querySelectorAll(
     } else if (video.muted) {
 
       video.muted = false;
+      userUnmuted = true;
 
     } else {
 
