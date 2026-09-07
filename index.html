@@ -665,14 +665,16 @@ document.querySelectorAll(
      REPRODUCIR VIDEO
   ----------------------------- */
 
-  function playVideo() {
+  function playVideo(withSound) {
 
     /*
-      El navegador permite autoplay
+      El navegador solo permite autoplay
       cuando el video está silenciado.
+      Si el usuario dio clic (withSound),
+      sí activamos el audio.
     */
 
-    video.muted = true;
+    video.muted = withSound ? false : true;
 
     video.play()
       .then(() => {
@@ -683,9 +685,15 @@ document.querySelectorAll(
       .catch(() => {
 
         /*
-          Si el navegador bloquea
-          el autoplay no hacemos nada.
+          Si el navegador bloquea la reproducción
+          con sonido (por ejemplo, sin gesto del
+          usuario), reintentamos silenciado.
         */
+
+        if (withSound) {
+          video.muted = true;
+          video.play().then(() => card.classList.add('playing')).catch(() => {});
+        }
 
       });
 
@@ -727,7 +735,7 @@ document.querySelectorAll(
           entry.intersectionRatio >= 0.35
         ) {
 
-          playVideo();
+          playVideo(false);
 
         } else {
 
@@ -766,7 +774,7 @@ document.querySelectorAll(
 
       if (video.paused) {
 
-        playVideo();
+        playVideo(true);
 
       } else {
 
@@ -788,7 +796,7 @@ document.querySelectorAll(
 
     if (video.paused) {
 
-      playVideo();
+      playVideo(true);
 
     } else {
 
