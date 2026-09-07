@@ -390,7 +390,7 @@
     <div class="grid-projects" id="projectGrid">
       <div class="gp gp-hasvideo sr" data-cats="web prog">
         <div class="gp-media gp-video-wrap">
-          <video class="gp-video" src="videos/web-project-demo.mp4" poster="videos/web-project-poster.jpg" loop playsinline preload="metadata"></video>
+          <video class="gp-video" src="videos/web-project-demo.mp4" poster="videos/web-project-poster.jpg" muted loop playsinline preload="metadata"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">Diseño Web · Página Web · Frontend</span>
@@ -410,7 +410,7 @@
 
       <div class="gp gp-hasvideo sr" data-cats="uiux app prog">
         <div class="gp-media gp-video-wrap" style="aspect-ratio:9/16 !important;background:#0d0d0d;">
-          <video class="gp-video" src="videos/reservaya-demo.mp4" loop playsinline preload="metadata" style="object-fit:cover;"></video>
+          <video class="gp-video" src="videos/reservaya-demo.mp4" muted loop playsinline preload="metadata" style="object-fit:cover;"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">App Móvil · UI/UX · Reservas</span>
@@ -435,7 +435,7 @@
 
       <div class="gp gp-hasvideo sr" data-cats="multimedia audiovisual prog">
         <div class="gp-media gp-video-wrap">
-          <video class="gp-video" src="videos/restauracion-imagenes-demo.mp4" loop playsinline preload="metadata"></video>
+          <video class="gp-video" src="videos/restauracion-imagenes-demo.mp4" muted loop playsinline preload="metadata"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">Procesamiento de Imágenes · Restauración</span>
@@ -646,7 +646,6 @@ document.querySelectorAll('.sr').forEach(el => {
    VIDEOS
    AUTOPLAY AL ENTRAR EN PANTALLA
    PAUSA AL SALIR
-   SONIDO AL HACER CLIC
 ========================================== */
 
 document.querySelectorAll(
@@ -654,104 +653,165 @@ document.querySelectorAll(
 ).forEach(card => {
 
   const video = card.querySelector('video');
-  const playBtn = card.querySelector('.gp-play, .featured-play');
+
+  const playBtn = card.querySelector(
+    '.gp-play, .featured-play'
+  );
 
   if (!video) return;
 
-  // Guarda el estado de sonido en el propio video para que
-  // otros scripts (como los carruseles) puedan conservarlo.
-  video._soundEnabled = false;
-
-  function playVideo(withSound = false) {
-
-    if (withSound) {
-      video._soundEnabled = true;
-    }
-
-    // Autoplay sin interacción = silenciado.
-    // Después de un clic del usuario = con sonido.
-    video.muted = !video._soundEnabled;
-
-    const playPromise = video.play();
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          card.classList.add('playing');
-        })
-        .catch(() => {
-          // Si el navegador bloquea el autoplay con sonido,
-          // el video continúa silenciado. El siguiente clic
-          // del usuario volverá a intentarlo con audio.
-          if (!video._soundEnabled) {
-            video.muted = true;
-            video.play()
-              .then(() => card.classList.add('playing'))
-              .catch(() => {});
-          }
-        });
-    }
-  }
-
-  function pauseVideo() {
-    video.pause();
-    card.classList.remove('playing');
-  }
 
   /* -----------------------------
-     DETECTAR CUANDO ENTRA EN PANTALLA
+     REPRODUCIR VIDEO
+  ----------------------------- */
+
+  function playVideo(withSound) {
+
+    /*
+      El navegador solo permite autoplay
+      cuando el video está silenciado.
+      Si el usuario dio clic (withSound),
+      sí activamos el audio.
+    */
+
+    video.muted = withSound ? false : true;
+
+    video.play()
+      .then(() => {
+
+        card.classList.add('playing');
+
+      })
+      .catch(() => {
+
+        /*
+          Si el navegador bloquea la reproducción
+          con sonido (por ejemplo, sin gesto del
+          usuario), reintentamos silenciado.
+        */
+
+        if (withSound) {
+          video.muted = true;
+          video.play().then(() => card.classList.add('playing')).catch(() => {});
+        }
+
+      });
+
+  }
+
+
+  /* -----------------------------
+     PAUSAR VIDEO
+  ----------------------------- */
+
+  function pauseVideo() {
+
+    video.pause();
+
+    card.classList.remove('playing');
+
+  }
+
+
+  /* -----------------------------
+     DETECTAR CUANDO ENTRA
+     EN LA PANTALLA
   ----------------------------- */
 
   const videoObserver = new IntersectionObserver(
+
     (entries) => {
+
       entries.forEach(entry => {
+
+        /*
+          Cuando al menos el 35% del
+          proyecto está visible:
+          reproducir.
+        */
+
         if (
           entry.isIntersecting &&
           entry.intersectionRatio >= 0.35
         ) {
-          // Si ya se activó el sonido, lo conserva.
-          playVideo(video._soundEnabled);
+
+          playVideo(false);
+
         } else {
+
           pauseVideo();
+
         }
+
       });
+
     },
+
     {
-      threshold: [0, 0.35, 0.6]
+      threshold: [
+        0,
+        0.35,
+        0.6
+      ]
     }
+
   );
 
+
   videoObserver.observe(card);
+
 
   /* -----------------------------
      BOTÓN PLAY / PAUSA
   ----------------------------- */
 
   if (playBtn) {
+
     playBtn.addEventListener('click', (event) => {
+
       event.preventDefault();
       event.stopPropagation();
 
       if (video.paused) {
-        // Clic del usuario: activa el sonido.
+
         playVideo(true);
+
+      } else if (video.muted) {
+
+        video.muted = false;
+
       } else {
+
         pauseVideo();
+
       }
+
     });
+
   }
 
+
   /* -----------------------------
-     CLIC DIRECTAMENTE SOBRE VIDEO
+     CLIC DIRECTAMENTE SOBRE
+     EL VIDEO
   ----------------------------- */
 
   video.addEventListener('click', () => {
+
     if (video.paused) {
-      // Clic del usuario: activa el sonido.
+
       playVideo(true);
+
+    } else if (video.muted) {
+
+      video.muted = false;
+
     } else {
+
       pauseVideo();
+
     }
+
   });
 
 });
@@ -824,9 +884,6 @@ document.querySelectorAll(
 
   function update() {
 
-    const wasPlaying = !video.paused;
-    const keepSound = video._soundEnabled === true;
-
     video.pause();
 
     card.classList.remove('playing');
@@ -843,15 +900,6 @@ document.querySelectorAll(
       );
 
     });
-
-    // Al cambiar de video, conserva el sonido y la reproducción
-    // si el video anterior estaba reproduciéndose.
-    if (wasPlaying) {
-      video.muted = !keepSound;
-      video.play()
-        .then(() => card.classList.add('playing'))
-        .catch(() => {});
-    }
 
   }
 
@@ -1002,9 +1050,6 @@ document.querySelectorAll(
 
   function update() {
 
-    const wasPlaying = !video.paused;
-    const keepSound = video._soundEnabled === true;
-
     video.pause();
 
     card.classList.remove('playing');
@@ -1021,15 +1066,6 @@ document.querySelectorAll(
       );
 
     });
-
-    // Al cambiar de video, conserva el sonido y la reproducción
-    // si el video anterior estaba reproduciéndose.
-    if (wasPlaying) {
-      video.muted = !keepSound;
-      video.play()
-        .then(() => card.classList.add('playing'))
-        .catch(() => {});
-    }
 
   }
 
