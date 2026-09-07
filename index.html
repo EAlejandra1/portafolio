@@ -390,7 +390,7 @@
     <div class="grid-projects" id="projectGrid">
       <div class="gp gp-hasvideo sr" data-cats="web prog">
         <div class="gp-media gp-video-wrap">
-          <video class="gp-video" src="videos/web-project-demo.mp4" poster="videos/web-project-poster.jpg" muted loop playsinline preload="metadata"></video>
+          <video class="gp-video" src="videos/web-project-demo.mp4" poster="videos/web-project-poster.jpg" loop playsinline preload="metadata"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">Diseño Web · Página Web · Frontend</span>
@@ -410,7 +410,7 @@
 
       <div class="gp gp-hasvideo sr" data-cats="uiux app prog">
         <div class="gp-media gp-video-wrap" style="aspect-ratio:9/16 !important;background:#0d0d0d;">
-          <video class="gp-video" src="videos/reservaya-demo.mp4" muted loop playsinline preload="metadata" style="object-fit:cover;"></video>
+          <video class="gp-video" src="videos/reservaya-demo.mp4" loop playsinline preload="metadata" style="object-fit:cover;"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">App Móvil · UI/UX · Reservas</span>
@@ -435,7 +435,7 @@
 
       <div class="gp gp-hasvideo sr" data-cats="multimedia audiovisual prog">
         <div class="gp-media gp-video-wrap">
-          <video class="gp-video" src="videos/restauracion-imagenes-demo.mp4" muted loop playsinline preload="metadata"></video>
+          <video class="gp-video" src="videos/restauracion-imagenes-demo.mp4" loop playsinline preload="metadata"></video>
           <button class="gp-play" type="button" aria-label="Reproducir video del proyecto">▶</button>
         </div>
         <span class="gp-cat">Procesamiento de Imágenes · Restauración</span>
@@ -517,39 +517,572 @@
   <span>© 2026 Alejandra Bernal</span>
   <span>Ingeniera Multimedia &amp; Diseñadora Visual</span>
 </footer>
-
 <script>
-/* (Tu JS original permanece aquí sin cambios) */
-const cursorDot=document.getElementById('cursorDot');if(window.matchMedia('(hover:hover) and (pointer:fine)').matches){window.addEventListener('mousemove',(e)=>{cursorDot.style.left=e.clientX+'px';cursorDot.style.top=e.clientY+'px';});document.querySelectorAll('a, button, .filter-btn').forEach(el=>{el.addEventListener('mouseenter',()=>cursorDot.classList.add('hovering'));el.addEventListener('mouseleave',()=>cursorDot.classList.remove('hovering'));});}const nav=document.getElementById('siteNav');window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40);},{passive:true});const navToggle=document.getElementById('navToggle');const navLinks=document.getElementById('navLinks');navToggle.addEventListener('click',()=>{navToggle.classList.toggle('open');navLinks.classList.toggle('open');});navLinks.querySelectorAll('a').forEach(a=>{a.addEventListener('click',()=>{navToggle.classList.remove('open');navLinks.classList.remove('open');});});window.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.reveal-up').forEach((el,i)=>{setTimeout(()=>el.classList.add('in'),150+i*160);});});const srObserver=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');srObserver.unobserve(entry.target);}});},{threshold:0.12});document.querySelectorAll('.sr').forEach(el=>srObserver.observe(el));document.querySelectorAll('.gp-hasvideo, .featured-video').forEach(card=>{const video=card.querySelector('video');const playBtn=card.querySelector('.gp-play, .featured-play');function play(){video.play().catch(()=>{});card.classList.add('playing');}function pause(){video.pause();card.classList.remove('playing');}const isBolivar=card.classList.contains('bolivar-video-carousel');if(window.matchMedia('(hover:hover) and (pointer:fine)').matches && !isBolivar){card.addEventListener('mouseenter',play);card.addEventListener('mouseleave',pause);}if(playBtn)playBtn.addEventListener('click',()=>{video.paused?play():pause();});});const filterBtns=document.querySelectorAll('.filter-btn');const filterable=document.querySelectorAll('[data-cats]');filterBtns.forEach(btn=>{btn.addEventListener('click',()=>{filterBtns.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;filterable.forEach(item=>{const cats=item.dataset.cats.split(' ');const show=f==='all'||cats.includes(f);item.style.display=show?'':'none';});});});
-document.querySelectorAll('.bolivar-video-carousel').forEach(card=>{
-  const video=card.querySelector('.featured-video-el');
-  const videos=JSON.parse(video.dataset.videos);
-  const dots=card.querySelectorAll('.carousel-dots .dot');
-  let idx=0;
-  function update(){video.pause();card.classList.remove('playing');video.src=videos[idx];video.load();dots.forEach((d,i)=>d.classList.toggle('active',i===idx));}
-  card.querySelector('.carousel-prev').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx-1+videos.length)%videos.length;update();});
-  card.querySelector('.carousel-next').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx+1)%videos.length;update();});
+/* ==========================================
+   CURSOR
+========================================== */
+
+const cursorDot = document.getElementById('cursorDot');
+
+if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+
+  window.addEventListener('mousemove', (e) => {
+    cursorDot.style.left = e.clientX + 'px';
+    cursorDot.style.top = e.clientY + 'px';
+  });
+
+  document.querySelectorAll('a, button, .filter-btn').forEach(el => {
+
+    el.addEventListener('mouseenter', () => {
+      cursorDot.classList.add('hovering');
+    });
+
+    el.addEventListener('mouseleave', () => {
+      cursorDot.classList.remove('hovering');
+    });
+
+  });
+
+}
+
+
+/* ==========================================
+   NAVBAR
+========================================== */
+
+const nav = document.getElementById('siteNav');
+
+window.addEventListener('scroll', () => {
+
+  nav.classList.toggle(
+    'scrolled',
+    window.scrollY > 40
+  );
+
+}, { passive: true });
+
+
+/* ==========================================
+   MENÚ MÓVIL
+========================================== */
+
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+
+navToggle.addEventListener('click', () => {
+
+  navToggle.classList.toggle('open');
+  navLinks.classList.toggle('open');
+
 });
-document.querySelectorAll('.gp-carousel').forEach(card=>{
-  const img=card.querySelector('.carousel-img');
-  const images=JSON.parse(img.dataset.images);
-  const dots=card.querySelectorAll('.carousel-dots .dot');
-  let idx=0;
-  function update(){img.src=images[idx];dots.forEach((d,i)=>d.classList.toggle('active',i===idx));}
-  card.querySelector('.carousel-prev').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx-1+images.length)%images.length;update();});
-  card.querySelector('.carousel-next').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx+1)%images.length;update();});
-  dots.forEach((d,i)=>d.addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=i;update();}));
+
+navLinks.querySelectorAll('a').forEach(a => {
+
+  a.addEventListener('click', () => {
+
+    navToggle.classList.remove('open');
+    navLinks.classList.remove('open');
+
+  });
+
 });
-document.querySelectorAll('.carousel-video').forEach(video=>{
-  const card=video.closest('.featured');
-  const videos=JSON.parse(video.dataset.videos);
-  const dots=card.querySelectorAll('.carousel-dots .dot');
-  let idx=0;
-  function update(){video.pause();card.classList.remove('playing');video.src=videos[idx];video.load();dots.forEach((d,i)=>d.classList.toggle('active',i===idx));}
-  card.querySelector('.carousel-prev').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx-1+videos.length)%videos.length;update();});
-  card.querySelector('.carousel-next').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=(idx+1)%videos.length;update();});
-  dots.forEach((d,i)=>d.addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();idx=i;update();}));
+
+
+/* ==========================================
+   ANIMACIÓN INICIAL
+========================================== */
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  document.querySelectorAll('.reveal-up').forEach((el, i) => {
+
+    setTimeout(() => {
+
+      el.classList.add('in');
+
+    }, 150 + i * 160);
+
+  });
+
 });
+
+
+/* ==========================================
+   ANIMACIONES AL HACER SCROLL
+========================================== */
+
+const srObserver = new IntersectionObserver(
+
+  (entries) => {
+
+    entries.forEach(entry => {
+
+      if (entry.isIntersecting) {
+
+        entry.target.classList.add('in');
+
+        srObserver.unobserve(entry.target);
+
+      }
+
+    });
+
+  },
+
+  {
+    threshold: 0.12
+  }
+
+);
+
+document.querySelectorAll('.sr').forEach(el => {
+
+  srObserver.observe(el);
+
+});
+
+
+/* ==========================================
+   VIDEOS
+   AUTOPLAY AL ENTRAR EN PANTALLA
+   PAUSA AL SALIR
+   SONIDO AL HACER CLIC
+========================================== */
+
+document.querySelectorAll(
+  '.gp-hasvideo, .featured-video'
+).forEach(card => {
+
+  const video = card.querySelector('video');
+  const playBtn = card.querySelector('.gp-play, .featured-play');
+
+  if (!video) return;
+
+  // Guarda el estado de sonido en el propio video para que
+  // otros scripts (como los carruseles) puedan conservarlo.
+  video._soundEnabled = false;
+
+  function playVideo(withSound = false) {
+
+    if (withSound) {
+      video._soundEnabled = true;
+    }
+
+    // Autoplay sin interacción = silenciado.
+    // Después de un clic del usuario = con sonido.
+    video.muted = !video._soundEnabled;
+
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          card.classList.add('playing');
+        })
+        .catch(() => {
+          // Si el navegador bloquea el autoplay con sonido,
+          // el video continúa silenciado. El siguiente clic
+          // del usuario volverá a intentarlo con audio.
+          if (!video._soundEnabled) {
+            video.muted = true;
+            video.play()
+              .then(() => card.classList.add('playing'))
+              .catch(() => {});
+          }
+        });
+    }
+  }
+
+  function pauseVideo() {
+    video.pause();
+    card.classList.remove('playing');
+  }
+
+  /* -----------------------------
+     DETECTAR CUANDO ENTRA EN PANTALLA
+  ----------------------------- */
+
+  const videoObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (
+          entry.isIntersecting &&
+          entry.intersectionRatio >= 0.35
+        ) {
+          // Si ya se activó el sonido, lo conserva.
+          playVideo(video._soundEnabled);
+        } else {
+          pauseVideo();
+        }
+      });
+    },
+    {
+      threshold: [0, 0.35, 0.6]
+    }
+  );
+
+  videoObserver.observe(card);
+
+  /* -----------------------------
+     BOTÓN PLAY / PAUSA
+  ----------------------------- */
+
+  if (playBtn) {
+    playBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (video.paused) {
+        // Clic del usuario: activa el sonido.
+        playVideo(true);
+      } else {
+        pauseVideo();
+      }
+    });
+  }
+
+  /* -----------------------------
+     CLIC DIRECTAMENTE SOBRE VIDEO
+  ----------------------------- */
+
+  video.addEventListener('click', () => {
+    if (video.paused) {
+      // Clic del usuario: activa el sonido.
+      playVideo(true);
+    } else {
+      pauseVideo();
+    }
+  });
+
+});
+
+
+/* ==========================================
+   FILTROS DE PROYECTOS
+========================================== */
+
+const filterBtns =
+  document.querySelectorAll('.filter-btn');
+
+const filterable =
+  document.querySelectorAll('[data-cats]');
+
+filterBtns.forEach(btn => {
+
+  btn.addEventListener('click', () => {
+
+    filterBtns.forEach(b => {
+
+      b.classList.remove('active');
+
+    });
+
+    btn.classList.add('active');
+
+    const f = btn.dataset.filter;
+
+    filterable.forEach(item => {
+
+      const cats =
+        item.dataset.cats.split(' ');
+
+      const show =
+        f === 'all' ||
+        cats.includes(f);
+
+      item.style.display =
+        show ? '' : 'none';
+
+    });
+
+  });
+
+});
+
+
+/* ==========================================
+   CARRUSEL SEGUR0S BOLÍVAR
+========================================== */
+
+document.querySelectorAll(
+  '.bolivar-video-carousel'
+).forEach(card => {
+
+  const video =
+    card.querySelector('.featured-video-el');
+
+  const videos =
+    JSON.parse(video.dataset.videos);
+
+  const dots =
+    card.querySelectorAll(
+      '.carousel-dots .dot'
+    );
+
+  let idx = 0;
+
+
+  function update() {
+
+    const wasPlaying = !video.paused;
+    const keepSound = video._soundEnabled === true;
+
+    video.pause();
+
+    card.classList.remove('playing');
+
+    video.src = videos[idx];
+
+    video.load();
+
+    dots.forEach((d, i) => {
+
+      d.classList.toggle(
+        'active',
+        i === idx
+      );
+
+    });
+
+    // Al cambiar de video, conserva el sonido y la reproducción
+    // si el video anterior estaba reproduciéndose.
+    if (wasPlaying) {
+      video.muted = !keepSound;
+      video.play()
+        .then(() => card.classList.add('playing'))
+        .catch(() => {});
+    }
+
+  }
+
+
+  card.querySelector(
+    '.carousel-prev'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx - 1 + videos.length)
+      % videos.length;
+
+    update();
+
+  });
+
+
+  card.querySelector(
+    '.carousel-next'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx + 1)
+      % videos.length;
+
+    update();
+
+  });
+
+});
+
+
+/* ==========================================
+   CARRUSEL X-WING / ZOMBIE
+========================================== */
+
+document.querySelectorAll(
+  '.gp-carousel'
+).forEach(card => {
+
+  const img =
+    card.querySelector('.carousel-img');
+
+  const images =
+    JSON.parse(img.dataset.images);
+
+  const dots =
+    card.querySelectorAll(
+      '.carousel-dots .dot'
+    );
+
+  let idx = 0;
+
+
+  function update() {
+
+    img.src = images[idx];
+
+    dots.forEach((d, i) => {
+
+      d.classList.toggle(
+        'active',
+        i === idx
+      );
+
+    });
+
+  }
+
+
+  card.querySelector(
+    '.carousel-prev'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx - 1 + images.length)
+      % images.length;
+
+    update();
+
+  });
+
+
+  card.querySelector(
+    '.carousel-next'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx + 1)
+      % images.length;
+
+    update();
+
+  });
+
+
+  dots.forEach((d, i) => {
+
+    d.addEventListener('click', (e) => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      idx = i;
+
+      update();
+
+    });
+
+  });
+
+});
+
+
+/* ==========================================
+   CARRUSEL DE VIDEOS BICUR
+========================================== */
+
+document.querySelectorAll(
+  '.carousel-video'
+).forEach(video => {
+
+  const card =
+    video.closest('.featured');
+
+  const videos =
+    JSON.parse(video.dataset.videos);
+
+  const dots =
+    card.querySelectorAll(
+      '.carousel-dots .dot'
+    );
+
+  let idx = 0;
+
+
+  function update() {
+
+    const wasPlaying = !video.paused;
+    const keepSound = video._soundEnabled === true;
+
+    video.pause();
+
+    card.classList.remove('playing');
+
+    video.src = videos[idx];
+
+    video.load();
+
+    dots.forEach((d, i) => {
+
+      d.classList.toggle(
+        'active',
+        i === idx
+      );
+
+    });
+
+    // Al cambiar de video, conserva el sonido y la reproducción
+    // si el video anterior estaba reproduciéndose.
+    if (wasPlaying) {
+      video.muted = !keepSound;
+      video.play()
+        .then(() => card.classList.add('playing'))
+        .catch(() => {});
+    }
+
+  }
+
+
+  card.querySelector(
+    '.carousel-prev'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx - 1 + videos.length)
+      % videos.length;
+
+    update();
+
+  });
+
+
+  card.querySelector(
+    '.carousel-next'
+  ).addEventListener('click', (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    idx =
+      (idx + 1)
+      % videos.length;
+
+    update();
+
+  });
+
+
+  dots.forEach((d, i) => {
+
+    d.addEventListener('click', (e) => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      idx = i;
+
+      update();
+
+    });
+
+  });
+
+});
+
 </script>
 
 </body>
